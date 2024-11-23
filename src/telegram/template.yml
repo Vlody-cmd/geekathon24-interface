@@ -8,7 +8,7 @@ Resources:
       Handler: index.handler
       Runtime: nodejs18.x
       CodeUri: './'
-      Timeout: 10
+      Timeout: 600
       MemorySize: 128
       Environment:
         Variables:

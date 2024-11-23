@@ -10,7 +10,7 @@ const bot = new Telegraf(TELEGRAM_API_TOKEN);
 
 // * IMPORT COMMANDS 
 const {  createUser, listCommand } = require('./command/start.js')
-
+const {  beginFinancialAdvide } = require('./command/financialModule.js')
 const { freeTalk } = require('./command/freeTalk.js')
 const { botOn } = require('./command/botOn.js')
 
@@ -20,10 +20,10 @@ const handler = async (event, context, callback) => {
 
   const body = JSON.parse(event.body);
 
-
   createUser(bot)
   listCommand(bot)
   freeTalk(bot)
+  beginFinancialAdvide(bot)
   botOn(bot)
  
 
