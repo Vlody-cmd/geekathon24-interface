@@ -1,0 +1,1 @@
+console.log('[INFO]: Start whatsapp connection ...')

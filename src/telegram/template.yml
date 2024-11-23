@@ -1,0 +1,64 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  TelegramBotFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs18.x
+      CodeUri: './'
+      Timeout: 10
+      MemorySize: 128
+      Environment:
+        Variables:
+          TELEGRAM_API_TOKEN: '7596365879:AAEZe61kBjNioSdgKYDMzbkv6b7Jc7s1Vm0'
+          CHAT_ID: '7755419235'
+      Role:
+        Fn::GetAtt: [TelegramBotExecutionRole, Arn]
+      Events:
+        TelegramWebhook:
+          Type: Api
+          Properties:
+            Path: /webhook
+            Method: POST
+
+  TelegramBotExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - sts:AssumeRole
+            Principal:
+              Service: lambda.amazonaws.com
+      Policies:
+        - PolicyName: LambdaApiGatewayInvokePolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource: arn:aws:lambda:*:*:function:*
+              - Effect: Allow
+                Action:
+                  - apigateway:GET
+                  - apigateway:POST
+                Resource: arn:aws:lambda:us-west-2:451852144542:function:telegram-motobat-TelegramBotFunction-rnCOAtb9CyHX/Prod/POST/webhook
+
+  LambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref TelegramBotFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: arn:aws:lambda:us-west-2:451852144542:function:telegram-motobat-TelegramBotFunction-rnCOAtb9CyHX/Prod/POST/webhook
