@@ -1,8 +1,9 @@
 const { saveNewUser } = require('../requests/user.js')
+const { Markup } = require('telegraf');
 
 const userState = {}
 
-function createUser(bot) {
+async function createUser(bot) {
     bot.start((ctx) => {
         userState[ctx.chat.id] = { step: 'askName' };
         const message = `Welcome, <b>${ctx.from.first_name || 'there'}</b>!\nI'm Boddy your personal daily assistant ! \n I noticed that you are new, lets create your profile to be more easier to assist you!\n\n
@@ -12,8 +13,15 @@ function createUser(bot) {
         })
     });
 
-    //! MISSING VALIDATIONS TO THIS
-    bot.on('text', (ctx) => {
+    let finishData = false
+    //! MISSING VALIDATIONS ON INPUT DATA
+    bot.on('text', async (ctx) => {
+
+        if (finishData) {
+            ctx.reply('Thank you! Your use already created. Provide you email to login!');
+            return
+        }
+
         const chatId = ctx.chat.id;
 
         if (userState[chatId]?.step === 'askName') {
@@ -29,25 +37,26 @@ function createUser(bot) {
             userState[chatId].step = 'askCity';
             ctx.reply('Thanks! Please provide on which city');
         } else if (userState[chatId]?.step === 'askCity') {
-                userState[chatId].city = ctx.message.text;
-                userState[chatId].step = 'askCity';
-                const { name, email, country, city } = userState[chatId];
-    
+            userState[chatId].city = ctx.message.text;
+            userState[chatId].step = 'askCity';
+            const { name, email, country, city } = userState[chatId];
+
             // Clear state and confirm details
             ctx.reply(
                 `Thanks for the information!\n\nName: ${name}\nEmail: ${email}\Location: ${country}, ${city}`
             );
-            
-            saveNewUser(userState[chatId])
+
+            await saveNewUser(userState[chatId])
+
             delete userState[chatId];
+  
+            finishData = true
         } else {
             ctx.reply('I didn’t understand that. Start by typing /start.');
         }
 
     });
 
-
-    console.log(userState)
 }
 
 
