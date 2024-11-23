@@ -4,19 +4,47 @@ require('dotenv').config();
 const { Telegraf } = require('telegraf');
 
 // * ENV SHOULD BE SECURE
-const { TELEGRAM_API_TOKEN, CHAT_ID } = process.env
+const { TELEGRAM_API_TOKEN, IS_PROD } = process.env
 const bot = new Telegraf(TELEGRAM_API_TOKEN);
 
+
+// * IMPORT COMMANDS 
+const { startCommand, list_commands } = require('./command/start.js')
+const { createUser } = require('./command/createUser.js')
+
 // Define a simple command
-bot.start((ctx) => ctx.reply('Welcome! This bot is powered by AWS Lambda.'));
-bot.on('text', (ctx) => ctx.reply(`You said: ${ctx.message.text}`));
+// bot.start((ctx) => ctx.reply('Welcome! This bot is powered by AWS Lambda.'));
+
+list_commands(bot)
+// bot.on('text', (ctx) => ctx.reply(`You said: ${ctx.message.text}`));
 
 
 // Lambda handler function
 const handler = async (event, context, callback) => {
+
+  const body = JSON.parse(event.body);
+  console.log(body)
+  // * CUSTOMER VALIDATION 
+  const { from,  message_id } = body.message
+
+  if(from) {
+    const {is_bot, language_code, first_name, id} = from 
+
+    //* VALIDATE IS THE  CUSTOMER ALREADY REGISTER 
+   const list = []
+    if(list.includes(id)) {
+      //! USER ALREADY EXIST
+      startCommand(bot)
+    } else {
+      console.log('HEYYY')
+      createUser(bot)
+      //! ASK DEFAULT QUESTION TO CREATE A USER
+    }
+  }
+
+  if(IS_PROD === 'true') {
     try {
         // Parse Telegram's webhook payload
-        const body = JSON.parse(event.body);
     
         // Pass the update to Telegraf for processing
         await bot.handleUpdate(body);
@@ -31,22 +59,10 @@ const handler = async (event, context, callback) => {
           statusCode: 500,
           body: JSON.stringify({ success: false, error: error.message }),
         };
-      }
- 
-// Send a message to a user (replace with the actual chat ID)
-// bot.telegram.sendMessage(CHAT_ID, 'Hello, this is a test message from your bot!')
-// .then(() => {
-//   console.log('Message sent!');
-// })
-// .catch((error) => {
-//   console.error('Error sending message:', error);
-// });
-
-
-// Listen for any text message
-
-
-   
+      } 
+  } else {
+    bot.launch();
+  }
 }
 
 exports.handler = handler;
