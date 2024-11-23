@@ -14,6 +14,7 @@ Resources:
         Variables:
           TELEGRAM_API_TOKEN: '7596365879:AAEZe61kBjNioSdgKYDMzbkv6b7Jc7s1Vm0'
           IS_PROD: 'true'
+          API_URL: 'https://e26ynei0fa.execute-api.us-west-2.amazonaws.com/prod/'
       Role:
         Fn::GetAtt: [TelegramBotExecutionRole, Arn]
       Events:

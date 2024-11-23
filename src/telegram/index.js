@@ -7,7 +7,6 @@ const { Telegraf } = require('telegraf');
 const { TELEGRAM_API_TOKEN, IS_PROD } = process.env
 const bot = new Telegraf(TELEGRAM_API_TOKEN);
 
-
 // * IMPORT COMMANDS 
 const { startCommand, list_commands } = require('./command/start.js')
 const { createUser } = require('./command/createUser.js')
@@ -37,6 +36,7 @@ const handler = async (event, context, callback) => {
 
 
   // * ======START DEFAULT COMMANDS 
+  bot.command('oldschool', (ctx) => ctx.reply('Hello'))
   list_commands(bot)
   freeTalk(bot)
   // * ======= START DEFAULT COMMANDS 
