@@ -2,15 +2,17 @@
 // * IMPORTS
 require('dotenv').config();
 const { Telegraf } = require('telegraf');
+const userDB = require('./classes/User.js');
 
 // * ENV SHOULD BE SECURE
 const { TELEGRAM_API_TOKEN, IS_PROD } = process.env
 const bot = new Telegraf(TELEGRAM_API_TOKEN);
 
 // * IMPORT COMMANDS 
-const { startCommand, list_commands } = require('./command/start.js')
-const { createUser } = require('./command/createUser.js')
+const {  createUser, listCommand } = require('./command/start.js')
+
 const { freeTalk } = require('./command/freeTalk.js')
+const { botOn } = require('./command/botOn.js')
 
 
 // Lambda handler function
@@ -18,28 +20,12 @@ const handler = async (event, context, callback) => {
 
   const body = JSON.parse(event.body);
 
-  // * CUSTOMER VALIDATION 
-  const { from, message_id } = body.message
 
-  if (from) {
-    const { is_bot, language_code, first_name, id } = from
-
-    //* VALIDATE IS THE  CUSTOMER ALREADY REGISTER 
-    const list = [7755419235]
-    if (!list.includes(id)) {
-      //! USER ALREADY EXIST
-      await createUser(bot)
-    } else {
-      startCommand(bot)
-    }
-  }
-
-
-  // * ======START DEFAULT COMMANDS 
-  bot.command('oldschool', (ctx) => ctx.reply('Hello'))
-  list_commands(bot)
+  createUser(bot)
+  listCommand(bot)
   freeTalk(bot)
-  // * ======= START DEFAULT COMMANDS 
+  botOn(bot)
+ 
 
   if (IS_PROD === 'true') {
     try {
