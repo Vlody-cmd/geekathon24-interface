@@ -313,7 +313,7 @@ function registerUserData(ctx) {
 
         // Clear state and confirm details
         ctx.reply(
-            `Thanks for the information!\n\nName: ${name}\nEmail: ${email}\Location: ${country}, ${city}\n Your account create success!`
+            `Thanks for the information!\n\nName: ${name}\nEmail: ${email}\nLocation: ${country}, ${city}\n Your account create success!`
         );
 
         const id = ctx.update.message.from.id
