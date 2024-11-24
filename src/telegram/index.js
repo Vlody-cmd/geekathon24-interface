@@ -2,7 +2,6 @@
 // * IMPORTS
 require('dotenv').config();
 const { Telegraf } = require('telegraf');
-const userDB = require('./classes/User.js');
 
 // * ENV SHOULD BE SECURE
 const { TELEGRAM_API_TOKEN, IS_PROD } = process.env
@@ -12,18 +11,22 @@ const bot = new Telegraf(TELEGRAM_API_TOKEN);
 const {  createUser, listCommand } = require('./command/start.js')
 const {  beginFinancialAdvide } = require('./command/financialModule.js')
 const { freeTalk } = require('./command/freeTalk.js')
-const { botOn } = require('./command/botOn.js')
-
+const { botOn, readImageList } = require('./command/botOn.js')
+const { askMyImage } = require('./command/pictures.js')
 
 // Lambda handler function
 const handler = async (event, context, callback) => {
 
   const body = JSON.parse(event.body);
 
+
+  console.log(JSON.stringify(body.message))
   createUser(bot)
   listCommand(bot)
   freeTalk(bot)
+  readImageList(bot)
   beginFinancialAdvide(bot)
+  askMyImage(bot)
   botOn(bot)
  
 

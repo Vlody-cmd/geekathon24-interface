@@ -32,6 +32,10 @@ function botOn(bot) {
                 financialAdviceData(ctx)
                 break;
 
+            case 'readImage':
+                geneateImageText(ctx)
+                break;
+
             default:
                 ctx.reply('Please Select one of the options available!');
                 console.log('Not recognise')
@@ -41,6 +45,78 @@ function botOn(bot) {
 
 
     });
+
+}
+
+
+
+
+function readImageList (bot) {
+
+    bot.on('photo', async (ctx) => {
+
+        const chatId = ctx.chat.id;
+
+        const contextData = context.getContextById(chatId)
+
+        console.log(contextData)
+
+        if (!contextData) return
+
+        if(!contextData || (!contextData && !contextData.command) || (contextData.command && contextData.command !== 'readImage')) {
+            ctx.reply('Heyyyy I no image please !');
+            return 
+        }
+        
+        if(!userState[chatId]) {
+            userState[chatId] = {}
+        }
+
+        try {
+          // Step 3: Get the file ID of the photo (highest resolution is the last in the array)
+          const fileId = ctx.message.photo[ctx.message.photo.length - 1].file_id;
+      
+          // Step 4: Get the file path using the Telegram API
+          const fileData = await ctx.telegram.getFile(fileId);
+          const fileUrl = `https://api.telegram.org/file/bot${bot.token}/${fileData.file_path}`;
+      
+          // Inform the user
+          ctx.reply('Thank you! Sending your picture...');
+      
+          console.log(fileUrl)
+          userState[chatId].imageUrl = fileUrl
+          ctx.reply('What you want about this image ?');
+          // Step 5: Send the file via Axios
+        //   const response = await axios.post(`${API_URL}api/imageReader`, { imageUrl: fileUrl });
+        //   ctx.reply('Your picture was successfully sent!');
+        } catch (error) {
+          console.error(error);
+          ctx.reply('Oops! Something went wrong while processing your picture.');
+        }
+      });
+}
+
+async function geneateImageText (ctx) {
+    const chatId = ctx.chat.id;
+
+    const response = ctx.message.text;
+
+    // const responseImg = await axios.post(`${API_URL}api/imageReader`, { imageUrl:   userState[chatId].imageUrl, text: response});
+
+    await axios.post(`${API_URL}api/imageReader`,  { image:   userState[chatId].imageUrl, text: response}, {
+
+    }).then(r => {
+
+        ctx.reply(r.data.message);
+
+        context.deleteContext(chatId)
+        delete userState[chatId]
+
+    }).catch(error => {
+        console.log(error)
+        ctx.reply("<b> Man sorry I'm tired ! I don't want work more today! Kiss", { parse_mode: 'HTML' });
+    })
+
 
 }
 
@@ -246,4 +322,4 @@ function registerUserData(ctx) {
 
 
 
-module.exports = { botOn };
+module.exports = { botOn, readImageList };
