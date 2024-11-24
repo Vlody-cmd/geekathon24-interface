@@ -20,7 +20,12 @@ const handler = async (event, context, callback) => {
   const body = JSON.parse(event.body);
 
 
-  console.log(JSON.stringify(body.message))
+
+  bot.start((ctx) => {
+    ctx.reply("👋 Hi, I'm Bonny, your friendly assistant bot!\nHere to help you with anything you need. 🤖\nLet's make your day easier! What can I do for you today? 😊", {parse_mode: 'HTML' });
+  });
+
+
   createUser(bot)
   listCommand(bot)
   freeTalk(bot)

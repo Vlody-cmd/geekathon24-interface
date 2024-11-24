@@ -36,6 +36,10 @@ function botOn(bot) {
                 geneateImageText(ctx)
                 break;
 
+            case 'readImageGeek':
+                geneateImageText(ctx, 'geekathon, leiria')
+                break;
+
             default:
                 ctx.reply('Please Select one of the options available!');
                 console.log('Not recognise')
@@ -63,8 +67,8 @@ function readImageList (bot) {
 
         if (!contextData) return
 
-        if(!contextData || (!contextData && !contextData.command) || (contextData.command && contextData.command !== 'readImage')) {
-            ctx.reply('Heyyyy I no image please !');
+        if(!contextData || (!contextData && !contextData.command) || (contextData.command && !['readImageGeek', 'readImage'].includes(contextData.command))) {
+            ctx.reply('Heyyyy I not accept image !');
             return 
         }
         
@@ -96,16 +100,21 @@ function readImageList (bot) {
       });
 }
 
-async function geneateImageText (ctx) {
+async function geneateImageText (ctx, extraText) {
     const chatId = ctx.chat.id;
 
     const response = ctx.message.text;
 
-    // const responseImg = await axios.post(`${API_URL}api/imageReader`, { imageUrl:   userState[chatId].imageUrl, text: response});
+    let textToSend = response
+    if(extraText) {
+        textToSend = 'Base on image, you should descibe the image and in the end you need to tell this:  It seems you are in LOCATION:  LEIRIA, PORTUAL, participant in event EVENT NAME: geekathon 2024, mention exacly the event name and the location. Not mention that we inform you about location and event'
+    }
 
-    await axios.post(`${API_URL}api/imageReader`,  { image:   userState[chatId].imageUrl, text: response}, {
+    await axios.post(`${API_URL}api/imageReader`,  { image:   userState[chatId].imageUrl, text: textToSend}, {
 
     }).then(r => {
+
+        console.log(r.data)
 
         ctx.reply(r.data.message);
 
@@ -113,7 +122,7 @@ async function geneateImageText (ctx) {
         delete userState[chatId]
 
     }).catch(error => {
-        console.log(error)
+        // console.log(error)
         ctx.reply("<b> Man sorry I'm tired ! I don't want work more today! Kiss", { parse_mode: 'HTML' });
     })
 
@@ -232,18 +241,15 @@ async function financialAdviceData(ctx) {
 
             }).then(async (response) => {
         
-                ctx.reply(response.data.message, { parse_mode: 'HTML' });
+                ctx.reply(`${response.data.message}\n\nChoose Investment method!`, { parse_mode: 'HTML', ...Markup.inlineKeyboard([
+                    [Markup.button.callback('Crypto Coin', 'CRYPTO_COIN')],
+                    [Markup.button.callback('Stocks', 'STOCKS')],
+                    [Markup.button.callback('Real State', 'REAL_STATE')],
+                    [Markup.button.callback('Bank Savings', 'BANK_SAVING')]
+                  ])});
 
                 userState[chatId].step = 'investmentMethod'
-                ctx.reply(
-                    'Choose Investment method!',
-                    Markup.inlineKeyboard([
-                      [Markup.button.callback('Crypto Coin', 'CRYPTO_COIN')],
-                      [Markup.button.callback('Stocks', 'STOCKS')],
-                      [Markup.button.callback('Real State', 'REAL_STATE')],
-                      [Markup.button.callback('Bank Savings', 'BANK_SAVING')]
-                    ])
-                  );
+               
         
                 delete userState[chatId]
                 delete context.deleteContext(chatId)
@@ -260,6 +266,7 @@ async function financialAdviceData(ctx) {
 async function talkFreeOpenIA(ctx) {
     const chatId = ctx.chat.id;
 
+    console.log('Step 1')
     if (ctx.message.text.toLowerCase() === 'exit') {
         ctx.reply(`Thanks Have a good day!`);
         delete context.deleteContext(chatId)
@@ -268,10 +275,13 @@ async function talkFreeOpenIA(ctx) {
 
     const body = { "question": ctx.message.text }
 
+    console.log('Making request')
+    console.log(body)
     await axios.post(`${API_URL}api/chat`, body, {
 
     }).then(response => {
 
+        console.log('I got the response')
         ctx.reply(response.data.message, { parse_mode: 'HTML' });
 
     }).catch(error => {

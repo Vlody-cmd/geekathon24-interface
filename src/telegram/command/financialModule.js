@@ -27,21 +27,15 @@ function beginFinancialAdvide (bot) {
        
         }).then(response => {
               
-        ctx.reply(response.data.message,  { parse_mode: 'HTML' });
+        ctx.reply(`${response.data.message}\n\n\n<b>What is you salary ? </b>`,  { parse_mode: 'HTML' });
 
-        const message = `<b>What is you salary ? </b> `
-        ctx.reply(message, {
-            parse_mode: 'HTML'
-        })
-           
+    
         }).catch(error => {
             console.log(error)
             ctx.reply("<b> Man sorry I'm tired ! I don't want work more today! Kiss",  { parse_mode: 'HTML' });
         })
     
       });
-
-
 
         bot.action('CRYPTO_COIN', (ctx) => requestInvestmentsData(ctx,'Crypto Coins'));
         bot.action('STOCKS', (ctx) => requestInvestmentsData(ctx,'Stocks'));

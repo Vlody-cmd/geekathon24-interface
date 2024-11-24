@@ -5,7 +5,7 @@ const userDB = require('../classes/User.js');
 const context = require('../classes/Context.js');
 
 function freeTalk(bot) {
-    bot.command('free_talk', (ctx) => {
+    bot.command('freetalk', (ctx) => {
 
         const id = ctx.update.message.from.id
         
